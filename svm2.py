@@ -18,7 +18,7 @@ from sklearn import svm
 
 clf = svm.SVC(gamma=0.001, C=100.)
  
-clf.fit(X_train,y_train)
+clf.fit(X_train,y_train.ravel())
 #score = clf.score(X_train,y_train)
 #print(score)
 
