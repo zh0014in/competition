@@ -10,20 +10,19 @@ X_train = data_train[:, 2:]
 y_train = data_train[:, 1]
 
 next_id = X_train[:, 0]
-position = X_train[:, 1]
-# next_id[next_id > -1] = 1
-# X_train[:, 0] = next_id
-X_train[:, 0] = abs(i_train - position)/100
-
-#remove features with low variance
-from sklearn.feature_selection import VarianceThreshold
-sel = VarianceThreshold(threshold=(.8 * (1 - .8)))
-sel.fit_transform(X_train)
+next_id[next_id > -1] = 1
+next_id[next_id == -1] = 0
+X_train[:, 0] = next_id
 print X_train
 
 p_train = np.column_stack([i_train, y_train])
 
 from sklearn import svm
+from sklearn.naive_bayes import MultinomialNB
+
+clf = MultinomialNB()
+ 
+clf.fit(X_train,y_train)
 
 test = pd.read_csv('test.csv', sep=",")
 data_test = np.array(test)
@@ -31,25 +30,14 @@ X_test = data_test[:, 2:]
 i_test = data_test[:, 0]
 
 next_id = X_test[:, 0]
-position = X_test[:, 1]
-# next_id[next_id > -1] = 1
-# X_test[:, 0] = next_id
-X_test[:,0] = abs(i_test - position)/100
-#remove features with low variance
-from sklearn.feature_selection import VarianceThreshold
-sel.fit_transform(X_test)
+next_id[next_id > -1] = 1
+next_id[next_id == -1] = 0
+X_test[:, 0] = next_id
 
 target = pd.read_csv('target.csv', sep=",")
 data_target = np.array(target)
 y_test = data_target[:, 1]
-    
-c = 500.0
-g = 0.01
-k = 'rbf'
-clf = svm.SVC(C=c, gamma=g, kernel=k)
-     
-print clf.fit(X_train,y_train)
-
+ 
 score = clf.score(X_test,y_test)
 print(score)
 

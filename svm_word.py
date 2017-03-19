@@ -5,15 +5,23 @@ from numpy.core.defchararray import index
 train = pd.read_csv('train.csv',sep=",")
 data_train = np.array(train)
 
+B= np.split(data_train, np.where(data_train[:, 3]== 1.)[0][1:])
+# B = np.split(data_train, np.argwhere(data_train[:,3] == 1).flatten()[1:])
+# print B
+print B[0].shape[0]
+label = []
+A = []
+for item in B:
+    label = np.append(label, [''.join(item[:, 1])], axis=0)
+#     A = np.append(A, item[:, 4:].flatten(), axis = 0)
+print label
 i_train = data_train[:, 0]
 X_train = data_train[:, 2:]  
 y_train = data_train[:, 1]
 
 next_id = X_train[:, 0]
-position = X_train[:, 1]
-# next_id[next_id > -1] = 1
-# X_train[:, 0] = next_id
-X_train[:, 0] = abs(i_train - position)/100
+next_id[next_id > -1] = 1
+X_train[:, 0] = next_id
 
 #remove features with low variance
 from sklearn.feature_selection import VarianceThreshold
@@ -25,16 +33,18 @@ p_train = np.column_stack([i_train, y_train])
 
 from sklearn import svm
 
+clf = svm.SVC(gamma=0.001, C=100.)
+
+print clf.fit(A,label)
+
 test = pd.read_csv('test.csv', sep=",")
 data_test = np.array(test)
 X_test = data_test[:, 2:]
 i_test = data_test[:, 0]
 
 next_id = X_test[:, 0]
-position = X_test[:, 1]
-# next_id[next_id > -1] = 1
-# X_test[:, 0] = next_id
-X_test[:,0] = abs(i_test - position)/100
+next_id[next_id > -1] = 1
+X_test[:, 0] = next_id
 #remove features with low variance
 from sklearn.feature_selection import VarianceThreshold
 sel.fit_transform(X_test)
@@ -42,14 +52,7 @@ sel.fit_transform(X_test)
 target = pd.read_csv('target.csv', sep=",")
 data_target = np.array(target)
 y_test = data_target[:, 1]
-    
-c = 500.0
-g = 0.01
-k = 'rbf'
-clf = svm.SVC(C=c, gamma=g, kernel=k)
-     
-print clf.fit(X_train,y_train)
-
+ 
 score = clf.score(X_test,y_test)
 print(score)
 
